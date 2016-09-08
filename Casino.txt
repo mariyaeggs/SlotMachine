@@ -1,0 +1,223 @@
+import java.lang.Math; 
+import java.util.Scanner; 
+
+public class SlotMachine // Main class
+{
+   // Test main()
+   public static void main(String[] args) 
+   {
+      int user_bet;
+      int winnging; 
+      user_bet = getBet(); 
+      // While the user bet is not zero, keep the game running
+      while ( user_bet > 0 ) // While the user_bet is not and greater than zero
+      {
+         // Continue playing game
+         getPayMultiplier(pull());
+         winnging = getPayMultiplier(pull()) * user_bet; // Bet*pay
+
+         // Loop controlled by getBet()
+         if (user_bet >=1 && user_bet <=100)
+         {
+            display(pull(), winnging);
+         }
+         else
+            // Exit program
+            System.out.println("Exitting"); 
+            System.exit(0);             
+      }   
+   }
+   
+   // Prompt user for input and return their bet amount as a functional return
+   public static int getBet() {
+      Scanner scanner_record = new Scanner(System.in); // Create new Scanner object\
+      String computer_prompt;  
+      String user_input;
+      int user_bet; 
+      
+      do {
+         computer_prompt = "\nHow much would you like to bet (1-100) or 0 to quit?\n"; 
+         System.out.print(computer_prompt);
+         user_input = scanner_record.nextLine(); 
+         user_bet = Integer.parseInt(user_input); // Return bet amount as a functional return 
+      } while (user_bet < 0 || user_bet > 100); // If the user bet surpasses parameters 
+      scanner_record.close(); // Close Scanner to avoid resource leaks
+      return user_bet;    
+   }
+   
+   // Method produces and returns random string based on required probabilities 
+   public static String randString() 
+   {
+      String rndStr = "";  // Initialize all string members to ""
+      int rndNum = 1 + (int)(Math.random() * 1000); // 1000 possible, random results 
+
+      if (rndNum >= 1 && rndNum <= 500 ) // (1000-500)/1000 = (0.5*100) = 50% probability of BAR
+         rndStr = "BAR";
+      
+      else if (rndNum <= 750 ) // (1000-750)/1000 = (0.25*100) = 25% probability of cherries
+         rndStr = "cherries";
+      
+      else if (rndNum <= 875 ) // (1000-875)/1000 = (0.125*100) = 12.5% probability of space 
+         rndStr = "space";
+      
+      else if (rndNum <= 1000) // 50% + 25% + 12.5% + X = 12.5% probability of 7 
+         rndStr = "7";
+      
+      return rndStr; 
+   }
+   
+   // Method initiates and returns a TripleString object to the user
+   public static TripleString pull()
+   {
+      // Create new TripleString object 
+      TripleString pullString = new TripleString();
+
+      // Store three random strings in the TripleString object
+      String str_1 = randString();
+      pullString.set_string1(str_1);
+      String str_2 = randString();
+      pullString.set_string2(str_2);
+      String str_3 = randString();
+      pullString.set_string3(str_3);
+
+      // Return TripleString object
+      return pullString;      
+   }
+   
+   // Method rewards user with "pay" for gamble
+   public static int getPayMultiplier (TripleString thePull)
+   {
+      int multiplier = 0; // Reset the multiplier to zero
+
+      //Combination 1 is cherries [not cherries] [any value]
+      if (thePull.get_string1() == "cherries" && 
+            thePull.get_string2() != "cherries" && 
+            thePull.get_string3() == "cherries" || 
+            thePull.get_string3() == "BAR" ||
+            thePull.get_string3() == "space" || 
+            thePull.get_string3() == "cherries")
+         multiplier = 5; // Pay = (user_bet*5)
+      // Combination 2 is cherries cherries [not cherries]
+      else if (thePull.get_string1() == "cherries" && 
+            thePull.get_string2() == "cherries" && 
+            thePull.get_string3() != "cherries")
+         multiplier = 15; // Pay = (user_bet*15)
+      // Combination 3 is cherries cherries cherries
+      else if (thePull.get_string1() == "cherries" && 
+            thePull.get_string2() == "cherries" && 
+            thePull.get_string3() == "cherries")
+         multiplier = 30; // Pay = (user_bet *30)
+      // Combination 4 is BAR BAR BAR
+      else if (thePull.get_string1() == "BAR" && 
+            thePull.get_string2() == "BAR" && 
+            thePull.get_string3() == "BAR")
+         multiplier = 50; // Pay = (user_bet*50)
+      // Combination 5 is 7 7 7 
+      else if (thePull.get_string1() == "7" && 
+            thePull.get_string2() == "7" && 
+            thePull.get_string3() == "7")
+         multiplier = 100; // Pay = (user_bet*100)
+      return multiplier; // return pay based on gamble outcome     
+   }
+   
+   // Output gives user news about winnings 
+   public static void display (TripleString thePull, int winnings)
+   {
+      System.out.println("\nwhirrrrr...and your pull is...\n"  + thePull.toString() + 
+            "\ncongaratulations, you win: " + "$" + winnings );
+   }   
+}
+
+// Class stores String data and constructors 
+class TripleString
+{
+   // Class TripleString data 
+   private String string_1, string_2, string_3;
+
+   //Define constants 
+   public static final double MIN_LEN = 1; 
+   public static final double MAX_LEN = 20;
+   public static final String DEFAULT_CONSTRUCTOR = ""; 
+
+   // Default constructor initializes all string members to "" 
+   TripleString ()
+   {
+      string_1 = DEFAULT_CONSTRUCTOR;
+      string_2 = DEFAULT_CONSTRUCTOR;
+      string_3 = DEFAULT_CONSTRUCTOR;
+   }
+   // Private helper method  to determine whether a String is legal
+   private boolean validString(String given_string)
+   {
+      if (given_string == null || given_string.length() < MIN_LEN || given_string.length() > MAX_LEN)
+         return false;
+      else
+         return true;
+   }
+
+   // Setter and Accessor methods 
+   public boolean set_string1 (String bool_string1)
+   {
+      if ( !validString(bool_string1) )
+         return false;
+      string_1 = bool_string1;
+      return true;
+   }
+
+   public boolean set_string2 (String bool_string2)
+   {
+      if ( !validString(bool_string2) )
+         return false;
+      string_2 = bool_string2;
+      return true;
+   }
+
+   public boolean set_string3 (String bool_string3)
+   {
+      if ( !validString(bool_string3) )
+         return false;
+      string_3 = bool_string3;
+      return true;
+   }
+
+   // Getter and Mutator methods 
+   public String get_string1 () { 
+      return string_1; 
+   }
+   public String get_string2 () { 
+      return string_2; 
+   }
+   public String get_string3 () { 
+      return string_3; 
+   }
+
+   public String toString ()
+   {
+      String string_return;
+      // Return all the strings as one string 
+      string_return = string_1 + "       " + string_2 + "       " + string_3; 
+      return string_return;
+   }
+
+}
+//TODO Winnings method? 
+//TODO Program does not loop in a do while
+//TODO "Sorry you lose!" 
+//TODO Check the calculations to see if 
+they are adding up correctly...
+//TODO net loss and gain?
+
+/* Psuedocode 
+if winnings > 100 
+show individual winnings
+show total monetary winnings */
+
+
+********************** OUTPUT **********************
+
+How much would you like to bet (1-100) or 0 to quit?
+100
+
+whirrrrr...and your pull is...
+7       BAR       space
+congaratulations, you win: $500
